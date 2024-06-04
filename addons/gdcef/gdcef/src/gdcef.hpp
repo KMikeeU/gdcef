@@ -67,6 +67,7 @@
 #  include "os.hpp"
 #  include "node.hpp"
 #  include "texture_rect.hpp"
+#  include "image_texture.hpp"
 
 // Chromium Embedded Framework
 #  include "cef_client.h"
@@ -286,6 +287,29 @@ public:
     // -------------------------------------------------------------------------
     GDBrowserView* createBrowser(godot::String const& url,
                                  godot::TextureRect* texture_rect,
+                                 godot::Dictionary config);
+
+    // -------------------------------------------------------------------------
+    //! \brief Create a browser view rendered to a ImageTexture and store its instance
+    //! as child node. This assumes a default size of 800x800 pixels, but you can
+    //! change it by calling browser.
+    //! Returns the browser identifier or return nullptr in case of failure.
+    //! \param[in] url the page link.
+    //! \param[in] image_texture the image texture where CEF will paint to.
+    //! \param[in] config dictionary of Browser config with default values:
+    //!   - {"frame_rate", 30}
+    //!   - {"javascript", STATE_ENABLED}
+    //!   - {"javascript_close_windows", STATE_DISABLED}
+    //!   - {"javascript_access_clipboard", STATE_DISABLED}
+    //!   - {"javascript_dom_paste", STATE_DISABLED}
+    //!   - {"image_loading", STATE_ENABLED}
+    //!   - {"databases", STATE_ENABLED}
+    //!   - {"webgl", STATE_ENABLED}
+    //!   Wherer STATE_DISABLED / STATE_ENABLED == false / true
+    //! \return the address of the newly created browser (or nullptr in case of error).
+    // -------------------------------------------------------------------------
+    GDBrowserView* createBrowser(godot::String const& url,
+                                 godot::ImageTexture* image_texture,
                                  godot::Dictionary config);
 
 private:

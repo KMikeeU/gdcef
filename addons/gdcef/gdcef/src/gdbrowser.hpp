@@ -275,6 +275,17 @@ public:
     GDBrowserView();
 
     // -------------------------------------------------------------------------
+    //! \brief Construct with existing ImageTexture. Initializes missing
+    //! internal states. Nothing else is made because Godot engine will
+    //! automatically call the _init() method. You shall complete the
+    //! constructor by calling init(godot::String const&, CefBrowserSettings
+    //! const&, CefWindowInfo const&) because Godot does not manage non
+    //! dummy constructors.
+    //! \param[in] texture, the Godot image texture to use for rendering.
+    // -------------------------------------------------------------------------
+    GDBrowserView(godot::ImageTexture* texture);
+
+    // -------------------------------------------------------------------------
     //! \brief Virtual to use dynamic_cast
     // -------------------------------------------------------------------------
     virtual ~GDBrowserView();

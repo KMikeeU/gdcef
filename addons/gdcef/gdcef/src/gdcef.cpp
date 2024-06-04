@@ -94,7 +94,8 @@ void GDCef::_bind_methods()
     ClassDB::bind_method(D_METHOD("initialize"), &GDCef::initialize);
     ClassDB::bind_method(D_METHOD("get_full_version"), &GDCef::version);
     ClassDB::bind_method(D_METHOD("get_version_part"), &GDCef::versionPart);
-    ClassDB::bind_method(D_METHOD("create_browser"), &GDCef::createBrowser);
+    ClassDB::bind_method(D_METHOD("create_browser"), static_cast<GDBrowserView* (GDCef::*)(godot::String const&, godot::TextureRect*, godot::Dictionary)>(&GDCef::createBrowser));
+    ClassDB::bind_method(D_METHOD("create_browser_on_texture"), static_cast<GDBrowserView* (GDCef::*)(godot::String const&, godot::ImageTexture*, godot::Dictionary)>(&GDCef::createBrowser));
     ClassDB::bind_method(D_METHOD("shutdown"), &GDCef::shutdown);
     ClassDB::bind_method(D_METHOD("is_alive"), &GDCef::isAlive);
     ClassDB::bind_method(D_METHOD("get_error"), &GDCef::getError);
@@ -464,6 +465,49 @@ GDBrowserView* GDCef::createBrowser(godot::String const& url,
     // Update the dimension of the page to the texture size
     browser->resize(texture_rect->get_size());
     texture_rect->set_texture(browser->m_texture);
+
+    // Attach the new Godot node as child node (sadly Godot does not show created
+    // nodes at run time)
+    add_child(browser);
+
+    godot::String name = browser->get_name();
+    GDCEF_DEBUG_VAL("name: " << name.utf8().get_data() << ", url: " << url.utf8().get_data());
+    return browser;
+}
+
+
+
+//------------------------------------------------------------------------------
+GDBrowserView* GDCef::createBrowser(godot::String const& url,
+                                    godot::ImageTexture* imageTexture,
+                                    godot::Dictionary config)
+{
+    if (m_impl == nullptr)
+    {
+        GDCEF_ERROR("CEF was not created (memory allocation issue)");
+        return nullptr;
+    }
+    if (imageTexture == nullptr)
+    {
+        GDCEF_ERROR("You have passed a nullptr texture rectangle");
+        return nullptr;
+    }
+
+    // Godot node creation (note Godot cannot pass arguments to _new())
+    GDBrowserView* browser = memnew(GDBrowserView(imageTexture));
+
+    // Complete BrowserView constructor (complete _new())
+    CefBrowserSettings settings;
+    configureBrowser(settings, config);
+    int id = browser->init(url, settings, windowInfo());
+    if (id < 0)
+    {
+        GDCEF_ERROR("browser->init() failed");
+        return nullptr;
+    }
+
+    // Update the dimension of the page to a default size
+    browser->resize(godot::Vector2(800, 800));
 
     // Attach the new Godot node as child node (sadly Godot does not show created
     // nodes at run time)

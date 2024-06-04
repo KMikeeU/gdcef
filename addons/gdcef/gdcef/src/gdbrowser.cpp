@@ -189,6 +189,18 @@ GDBrowserView::GDBrowserView()
 }
 
 //------------------------------------------------------------------------------
+GDBrowserView::GDBrowserView(godot::ImageTexture* texture)
+        : m_viewport({ 0.0f, 0.0f, 1.0f, 1.0f})
+{
+    BROWSER_DEBUG_VAL("Create Godot texture");
+
+    m_impl = new GDBrowserView::Impl(*this);
+    assert((m_impl != nullptr) && "Failed allocating GDBrowserView");
+    m_image.instantiate();
+    m_texture = godot::Ref<godot::ImageTexture>(texture);
+}
+
+//------------------------------------------------------------------------------
 GDBrowserView::~GDBrowserView()
 {
     close();
